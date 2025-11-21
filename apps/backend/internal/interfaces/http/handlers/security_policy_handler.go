@@ -67,12 +67,12 @@ func (h *SecurityPolicyHandler) GetPolicy(c fiber.Ctx) error {
 type CreatePolicyRequest struct {
 	Name              string                   `json:"name" validate:"required"`
 	Description       string                   `json:"description"`
-	PolicyType        domain.PolicyType        `json:"policyType" validate:"required"`
-	EnforcementAction domain.EnforcementAction `json:"enforcementAction" validate:"required"`
-	SeverityThreshold domain.AlertSeverity     `json:"severityThreshold" validate:"required"`
+	PolicyType        domain.PolicyType        `json:"Policy_type" validate:"required"`
+	EnforcementAction domain.EnforcementAction `json:"enforcement_action" validate:"required"`
+	SeverityThreshold domain.AlertSeverity     `json:"severity_threshold" validate:"required"`
 	Rules             map[string]interface{}   `json:"rules"`
-	AppliesTo         string                   `json:"appliesTo" validate:"required"`
-	IsEnabled         bool                     `json:"isEnabled"`
+	AppliesTo         string                   `json:"applies_to" validate:"required"`
+	IsEnabled         bool                     `json:"is_enabled"`
 	Priority          int                      `json:"priority" validate:"required"`
 }
 
@@ -127,12 +127,27 @@ func (h *SecurityPolicyHandler) UpdatePolicy(c fiber.Ctx) error {
 		})
 	}
 
+	// 🔍 Debug: Print received request
+	println("=== Received Request ===")
+	println("Name:", req.Name)
+	println("PolicyType:", string(req.PolicyType))
+	println("EnforcementAction:", string(req.EnforcementAction))
+	println("SeverityThreshold:", string(req.SeverityThreshold))
+	println("IsEnabled:", req.IsEnabled)
+	println("Priority:", req.Priority)
+	println("AppliesTo:", req.AppliesTo)
+
 	policy, err := h.policyService.GetPolicy(c.Context(), policyID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Policy not found",
 		})
 	}
+
+	// 🔍 Debug: Print policy before update
+	println("=== Policy Before Update ===")
+	println("PolicyType:", string(policy.PolicyType))
+	println("EnforcementAction:", string(policy.EnforcementAction))
 
 	// Update fields
 	policy.Name = req.Name
@@ -144,6 +159,11 @@ func (h *SecurityPolicyHandler) UpdatePolicy(c fiber.Ctx) error {
 	policy.AppliesTo = req.AppliesTo
 	policy.IsEnabled = req.IsEnabled
 	policy.Priority = req.Priority
+
+	// 🔍 Debug: Print policy after assignment
+	println("=== Policy After Assignment ===")
+	println("PolicyType:", string(policy.PolicyType))
+	println("EnforcementAction:", string(policy.EnforcementAction))
 
 	if err := h.policyService.UpdatePolicy(c.Context(), policy); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
