@@ -494,8 +494,8 @@ export default function SecurityPoliciesPage() {
                               Priority: {policy.priority}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
-                              {policyTypeLabels[policy.policyType] ||
-                                policy.policyType}
+                              {policyTypeLabels[policy.policy_type] ||
+                                policy.policy_type}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
