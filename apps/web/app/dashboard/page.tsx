@@ -589,7 +589,7 @@ function DashboardContent() {
                       }}
                       formatter={(value: number, name: string) => [
                         value,
-                        name === "verified"
+                        name === "Verified"
                           ? "Verified Agents"
                           : "Pending Agents",
                       ]}

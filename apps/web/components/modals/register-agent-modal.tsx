@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   X,
   Loader2,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { api, Agent } from "@/lib/api";
 import { downloadSDK as downloadAgentSDK } from "@/lib/agent-sdk";
+import { toast } from "sonner";
 
 interface RegisterAgentModalProps {
   isOpen: boolean;
@@ -88,11 +89,31 @@ export function RegisterAgentModal({
     capabilities: [],
   });
   const [formData, setFormData] = useState<FormData>(createEmptyFormData());
+
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const displayNameRef = useRef<HTMLInputElement | null>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+  const versionRef = useRef<HTMLInputElement | null>(null);
+  const certificateUrlRef = useRef<HTMLInputElement | null>(null);
+  const repositoryUrlRef = useRef<HTMLInputElement | null>(null);
+  const documentationUrlRef = useRef<HTMLInputElement | null>(null);
   const [initialFormData, setInitialFormData] = useState<FormData>(
     createEmptyFormData()
   );
+  const errorBannerRef = useRef<HTMLDivElement | null>(null);
   const [newMcpServer, setNewMcpServer] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (error && errorBannerRef.current) {
+      requestAnimationFrame(() => {
+        errorBannerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      });
+    }
+  }, [error]);
 
   // Update form data when initialData or editMode changes
   useEffect(() => {
@@ -158,6 +179,32 @@ export function RegisterAgentModal({
     }
 
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      requestAnimationFrame(() => {
+        if (newErrors.name && nameRef.current) {
+          nameRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          nameRef.current.focus();
+        } else if (newErrors.display_name && displayNameRef.current) {
+          displayNameRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          displayNameRef.current.focus();
+        } else if (newErrors.description && descriptionRef.current) {
+          descriptionRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          descriptionRef.current.focus();
+        } else if (newErrors.version && versionRef.current) {
+          versionRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          versionRef.current.focus();
+        } else if (newErrors.certificate_url && certificateUrlRef.current) {
+          certificateUrlRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          certificateUrlRef.current.focus();
+        } else if (newErrors.repository_url && repositoryUrlRef.current) {
+          repositoryUrlRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          repositoryUrlRef.current.focus();
+        } else if (newErrors.documentation_url && documentationUrlRef.current) {
+          documentationUrlRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+          documentationUrlRef.current.focus();
+        }
+      });
+    }
     return Object.keys(newErrors).length === 0;
   };
 
@@ -204,13 +251,19 @@ export function RegisterAgentModal({
       setSuccess(true);
       setCreatedAgent(result);
 
-      // Don't auto-close for new registrations - let user download SDK first
       if (editMode) {
+        toast.success("Agent updated successfully", {
+          description: `${result.display_name || result.name} has been updated.`,
+        });
         setTimeout(() => {
           onSuccess?.(result);
           onClose();
           resetForm();
-        }, 1500);
+        }, 1200);
+      } else {
+        toast.success("Agent created successfully", {
+          description: `${result.display_name || result.name} is ready to integrate.`,
+        });
       }
     } catch (err) {
       console.error("Failed to save agent:", err);
@@ -718,19 +771,12 @@ export function RegisterAgentModal({
             </div>
           )}
 
-          {/* Edit Mode Success Message */}
-          {success && editMode && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <p className="text-sm text-green-800 dark:text-green-300">
-                Agent updated successfully!
-              </p>
-            </div>
-          )}
-
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
+            <div
+              ref={errorBannerRef}
+              className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3"
+            >
               <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
               <div className="flex-1">
                 <p className="text-sm text-red-800 dark:text-red-300">
@@ -755,6 +801,7 @@ export function RegisterAgentModal({
                     Agent Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    ref={nameRef}
                     type="text"
                     value={formData.name}
                     onChange={(e) =>
@@ -785,6 +832,7 @@ export function RegisterAgentModal({
                     Display Name <span className="text-red-500">*</span>
                   </label>
                   <input
+                    ref={displayNameRef}
                     type="text"
                     value={formData.display_name}
                     onChange={(e) =>
@@ -811,6 +859,7 @@ export function RegisterAgentModal({
                     Description
                   </label>
                   <textarea
+                    ref={descriptionRef}
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -851,6 +900,7 @@ export function RegisterAgentModal({
                       Version <span className="text-red-500">*</span>
                     </label>
                     <input
+                      ref={versionRef}
                       type="text"
                       value={formData.version}
                       onChange={(e) =>
@@ -885,6 +935,7 @@ export function RegisterAgentModal({
                     Certificate URL
                   </label>
                   <input
+                    ref={certificateUrlRef}
                     type="url"
                     value={formData.certificate_url}
                     onChange={(e) =>
@@ -914,6 +965,7 @@ export function RegisterAgentModal({
                     Repository URL
                   </label>
                   <input
+                    ref={repositoryUrlRef}
                     type="url"
                     value={formData.repository_url}
                     onChange={(e) =>
@@ -943,6 +995,7 @@ export function RegisterAgentModal({
                     Documentation URL
                   </label>
                   <input
+                    ref={documentationUrlRef}
                     type="url"
                     value={formData.documentation_url}
                     onChange={(e) =>

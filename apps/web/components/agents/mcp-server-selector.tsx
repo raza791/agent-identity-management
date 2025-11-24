@@ -257,7 +257,7 @@ export function MCPServerSelector({
                       <div className="space-y-2">
                         {mappedServers.map((server) => (
                           <div
-                            key={server.id}
+                            key={`mapped-${server.id}`}
                             className="p-3 rounded-lg border bg-muted/50 opacity-60"
                           >
                             <div className="flex items-start gap-3">
@@ -295,7 +295,7 @@ export function MCPServerSelector({
                           const isSelected = selectedServers.has(server.name)
                           return (
                             <div
-                              key={server.id}
+                              key={`available-${server.id}`}
                               onClick={() => handleToggleServer(server.name)}
                               className={`p-3 rounded-lg border cursor-pointer transition-all hover:border-primary ${
                                 isSelected ? 'bg-primary/5 border-primary' : 'bg-card'
