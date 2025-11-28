@@ -146,7 +146,7 @@ func main() {
 	app.Use(middleware.LoggerMiddleware())
 	app.Use(metrics.PrometheusMiddleware())   // Prometheus metrics collection
 	app.Use(middleware.AnalyticsTracking(db)) // Real-time API call tracking
-	// app.Use(middleware.RequestLoggerMiddleware())
+	 app.Use(middleware.RequestLoggerMiddleware())
 
 	// CORS with allowed origins from environment
 	// IMPORTANT: Frontend ALWAYS runs on port 3000, backend on port 8080

@@ -1473,7 +1473,7 @@ class AIMClient:
                     "requires_approval": True,
                     "function_name": func.__name__,
                     "module": func.__module__,
-                    "warning": f"⚠️  CRITICAL: This action requires human approval!"
+                    "warning": f" CRITICAL: This action requires human approval!"
                 }
 
                 # Add args/kwargs to context
@@ -1582,8 +1582,8 @@ def _save_credentials(agent_name: str, credentials: Dict[str, Any]):
         "public_key": credentials["public_key"],
         "private_key": credentials["private_key"],
         "aim_url": credentials["aim_url"],
-        "status": credentials["status"],
-        "trust_score": credentials["trust_score"],
+        "status": credentials.get("status", "unknown"),
+        "trust_score": credentials.get("trust_score"),
         "registered_at": datetime.now(timezone.utc).isoformat()
     }
 
